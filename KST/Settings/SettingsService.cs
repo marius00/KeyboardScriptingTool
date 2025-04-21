@@ -50,7 +50,7 @@ namespace KST.Settings {
 
                         // May have multiple references to a single script
                         if (!_luaScriptFromFilename.ContainsKey(entry.Path.ToLower())) {
-                            var engine = new LuaEngine(_ledProvider, script);
+                            var engine = new LuaEngine(_ledProvider, script, entry.Path);
                             _luaScriptFromFilename[entry.Path.ToLower()] = engine;
                         }
                         _luaScriptFromProcess[entry.Process] = _luaScriptFromFilename[entry.Path.ToLower()];

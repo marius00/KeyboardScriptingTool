@@ -17,8 +17,9 @@ namespace KST.LuaIntegration {
         private LuaFunction _onEvent;
         private string _newScriptQueued;
         private readonly LuaIntegration _integration;
+        private readonly string _filename;
 
-        public LuaEngine(LogitechLedProvider ledProvider, string script) {
+        public LuaEngine(LogitechLedProvider ledProvider, string script, string filename) {
             _integration = new LuaIntegration(ledProvider);
 
             _lua = new Lua();
@@ -26,7 +27,8 @@ namespace KST.LuaIntegration {
             _lua.State.Encoding = Encoding.UTF8;
 
             Directory.SetCurrentDirectory(AppPaths.SettingsFolder);
-            
+
+            _filename = filename;
             _lua["provider"] = _integration;
             _newScriptQueued = script;
         }
@@ -38,13 +40,17 @@ namespace KST.LuaIntegration {
         public void ExecuteQueuedActions() {
             if (!string.IsNullOrEmpty(_newScriptQueued)) {
 
+                if (!_newScriptQueued.Contains("require \"core\"")) {
+                    Logger.Warn("Script does not call require \"core\", beware that certain functionality is unavailable");
+                }
+
                 try {
                     _onEvent = null;
                     _lua.DoString(_newScriptQueued);
                     _onEvent = _lua["OnEvent"] as LuaFunction;
                 }
                 catch (NLua.Exceptions.LuaScriptException ex) {
-                    Logger.Error("Error parsing script");
+                    Logger.Error("Error parsing script: " + _filename);
                     Logger.Error(ex.Message, ex);
                 }
 
