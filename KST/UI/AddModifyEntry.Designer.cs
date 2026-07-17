@@ -33,6 +33,7 @@
             this.btnBrowseLua = new System.Windows.Forms.Button();
             this.btnPickProcess = new System.Windows.Forms.Button();
             this.btnBrowseProcess = new System.Windows.Forms.Button();
+            this.btnWizard = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.linkOpenFolder = new System.Windows.Forms.LinkLabel();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -120,9 +121,19 @@
             this.btnBrowseProcess.Text = "Browse..";
             this.btnBrowseProcess.UseVisualStyleBackColor = true;
             this.btnBrowseProcess.Click += new System.EventHandler(this.btnBrowseProcess_Click);
-            // 
+            //
+            // btnWizard
+            //
+            this.btnWizard.Location = new System.Drawing.Point(480, 69);
+            this.btnWizard.Name = "btnWizard";
+            this.btnWizard.Size = new System.Drawing.Size(75, 23);
+            this.btnWizard.TabIndex = 12;
+            this.btnWizard.Text = "Wizard..";
+            this.btnWizard.UseVisualStyleBackColor = true;
+            this.btnWizard.Click += new System.EventHandler(this.btnWizard_Click);
+            //
             // groupBox1
-            // 
+            //
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -135,6 +146,7 @@
             this.groupBox1.Controls.Add(this.btnPickProcess);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.btnBrowseLua);
+            this.groupBox1.Controls.Add(this.btnWizard);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.lbScript);
             this.groupBox1.Controls.Add(this.tbScript);
@@ -210,6 +222,7 @@
         private System.Windows.Forms.Button btnBrowseLua;
         private System.Windows.Forms.Button btnPickProcess;
         private System.Windows.Forms.Button btnBrowseProcess;
+        private System.Windows.Forms.Button btnWizard;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnSave;

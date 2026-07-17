@@ -75,3 +75,27 @@ Obs: May also need to click the "Allow games & applications to control illuminat
 
 The .lua file must have a function called `OnEvent`. See [example.lua](./Logitech/Resources/example.lua) for details on usage.
 
+### Script wizard
+
+Most scripts are just "hold LMB", "spam a key" or "autorun" in some combination, so they don't have to be written by hand.
+Press **Wizard..** in the script configuration dialog, pick what each key should do, and the .lua file is generated for you.
+
+The generated script keeps its configuration in a comment at the top, so pressing **Wizard..** again on a generated
+script re-opens it with the bindings intact. Editing a generated script by hand is fine, but re-running the wizard
+overwrites those changes.
+
+The wizard builds on a set of lua libraries that can also be used directly from a hand written script:
+
+| Library | Adds | Does |
+| --- | --- | --- |
+| [keyspam.lua](./KST/Resources/keyspam.lua) | `ks_add(trigger, keyToLight, key [, holdToSpam])` | Spam a key, toggled or while held |
+| [mousespam.lua](./KST/Resources/mousespam.lua) | `ms_add(trigger, keyToLight, button [, holdToSpam])` | Spam LMB/RMB/MMB, toggled or while held |
+| [holdbutton.lua](./KST/Resources/holdbutton.lua) | `hb_add(trigger, keyToLight, button)` | Toggle holding a mouse button or key down |
+| [autorun.lua](./KST/Resources/autorun.lua) | `ar_add(trigger, keyToLight, runKey, cancelKeys)` | Toggle autorun, cancelled by releasing the run key or by a cancel key |
+
+Each library also exposes `<prefix>_OnEvent(event, arg, modifiers)`, `<prefix>_reset()` and `<prefix>_outputHelpText()`.
+Call `_OnEvent` from your own `OnEvent` and the rest is handled for you. See [spirit-of-island.lua](./KST/Resources/spirit-of-island.lua) for an example.
+
+Note that "while held" requires a regular keyboard key, as G-keys never send a key up event. With G-Hub, map the
+G-key to an F-key and trigger on that instead.
+
