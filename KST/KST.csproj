@@ -1,261 +1,80 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{75E00417-9251-46CB-9A82-51EBD685C950}</ProjectGuid>
+    <!-- Date-based version (replaces the old AssemblyVersion 1.0.* wildcard).
+         Produces e.g. 1.0.9430.21600 -->
+    <BuildDateTimeUtc>$([System.DateTime]::Now.Subtract($([System.DateTime]::new(2000,1,1,0,0,0))).TotalDays.ToString("0"))</BuildDateTimeUtc>
+    <VersionRevision>$([System.Convert]::ToUInt16($([MSBuild]::Divide($([System.DateTime]::Now.TimeOfDay.TotalSeconds),2))))</VersionRevision>
+    <Version>1.0.$(BuildDateTimeUtc).$(VersionRevision)</Version>
+    <AssemblyInformationalVersion>$(Version)</AssemblyInformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>AnyCPU;x64</Platforms>
     <RootNamespace>KST</RootNamespace>
     <AssemblyName>KST</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>false</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
+    <StartupObject>KST.Program</StartupObject>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+
+    <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+    <!-- WFO1000: public data properties on Form subclasses; not designer-serialized state -->
+    <NoWarn>WFO1000</NoWarn>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <!-- Assembly metadata (was Properties\AssemblyInfo.cs) -->
   <PropertyGroup>
-    <StartupObject />
+    <Company>EvilSoft</Company>
+    <Product>KST</Product>
+    <AssemblyTitle>KST - Keyboard Scripting Tool</AssemblyTitle>
+    <Copyright>Copyright © 2022</Copyright>
+    <RepositoryUrl>https://github.com/marius00/KeyboardScriptingTool</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <ComVisible>false</ComVisible>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="InputSimulatorStandard, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\InputSimulatorStandard.1.0.0\lib\netstandard2.0\InputSimulatorStandard.dll</HintPath>
-    </Reference>
-    <Reference Include="KeraLua, Version=1.3.1.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>..\packages\KeraLua.1.3.1\lib\net46\KeraLua.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.14.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.14\lib\net45\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Data.Sqlite, Version=6.0.5.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.6.0.5\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLua, Version=1.6.0.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLua.1.6.0\lib\net46\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="SQLitePCLRaw.core, Version=2.0.6.1341, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
-      <HintPath>..\packages\SQLitePCLRaw.core.2.0.6\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\lib\net46\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.116.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.116.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="InputSimulatorStandard" Version="1.0.0" />
+    <PackageReference Include="log4net" Version="3.3.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.8" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="NLua" Version="1.7.9" />
   </ItemGroup>
+
+  <!-- Native DLLs and content that must land next to the executable -->
   <ItemGroup>
-    <Compile Include="Config\AppPaths.cs" />
-    <Compile Include="Config\LogitechPaths.cs" />
-    <Compile Include="Misc\IdleSleeper.cs" />
-    <Compile Include="Misc\SingleInstance.cs" />
-    <Compile Include="Config\TextBoxAppender.cs" />
-    <Compile Include="Misc\UsageStatisticsReporter.cs" />
-    <Compile Include="InputProviders\Args\InputEventArg.cs" />
-    <Compile Include="InputProviders\Args\InputEventHandler.cs" />
-    <Compile Include="InputProviders\Args\InputEventType.cs" />
-    <Compile Include="InputProviders\Args\InputModifierState.cs" />
-    <Compile Include="InputProviders\LogitechInputProvider.cs" />
-    <Compile Include="InputProviders\LogitechGKeys.cs" />
-    <Compile Include="InputProviders\InterceptKeys.cs" />
-    <Compile Include="InputProviders\MouseInputProvider.cs" />
-    <Compile Include="KeyMapper.cs" />
-    <Compile Include="Led\LogitechGSDK.cs" />
-    <Compile Include="Led\LogitechKeyMapping.cs" />
-    <Compile Include="Led\LogitechLedProvider.cs" />
-    <Compile Include="LGS\LgsProfileUtil.cs" />
-    <Compile Include="LGS\GHubProfileUtil.cs" />
-    <Compile Include="LuaIntegration\LuaEngine.cs" />
-    <Compile Include="LuaIntegration\LuaEventType.cs" />
-    <Compile Include="LuaIntegration\LuaIntegration.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptWizard\KeyCatalog.cs" />
-    <Compile Include="ScriptWizard\ScriptGenerator.cs" />
-    <Compile Include="ScriptWizard\WizardModel.cs" />
-    <Compile Include="Settings\Dto\LuaScriptEntry.cs" />
-    <Compile Include="Settings\Dto\SettingsRootNode.cs" />
-    <Compile Include="Settings\SettingsFileMonitor.cs" />
-    <Compile Include="Settings\SettingsReader.cs" />
-    <Compile Include="Settings\SettingsService.cs" />
-    <Compile Include="UI\AddBindingDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\AddBindingDialog.Designer.cs">
-      <DependentUpon>AddBindingDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ScriptWizardForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\ScriptWizardForm.Designer.cs">
-      <DependentUpon>ScriptWizardForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\AddModifyEntry.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\AddModifyEntry.Designer.cs">
-      <DependentUpon>AddModifyEntry.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\BrowseProcess.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\BrowseProcess.Designer.cs">
-      <DependentUpon>BrowseProcess.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\ConfigurationView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\ConfigurationView.Designer.cs">
-      <DependentUpon>ConfigurationView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\MainContainer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\MainContainer.Designer.cs">
-      <DependentUpon>MainContainer.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\MinimizeToTrayHandler.cs" />
-    <Compile Include="Win32.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Log4net.config">
+    <None Update="LogitechGkeyEnginesWrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
-    <None Include="Resources\core.lua">
+    <None Update="LogitechLedEnginesWrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\cryofall.lua">
+    <None Update="Log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\dinkum.lua">
+    <None Update="Resources\*.lua">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\satisfactory.lua">
+    <None Update="Resources\settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\example.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\keyspam.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\mousespam.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\holdbutton.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\autorun.lua">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\spirit-of-island.lua">
+    <None Update="Resources\{F752A6C0-5D8A-4EB1-A25A-3CC275A060C1}.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="icon.ico" />
-    <Content Include="LogitechGkeyEnginesWrapper.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="LogitechLedEnginesWrapper.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\{F752A6C0-5D8A-4EB1-A25A-3CC275A060C1}.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="UI\AddModifyEntry.resx">
-      <DependentUpon>AddModifyEntry.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\BrowseProcess.resx">
-      <DependentUpon>BrowseProcess.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\ConfigurationView.resx">
-      <DependentUpon>ConfigurationView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\MainContainer.resx">
-      <DependentUpon>MainContainer.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\KeraLua.1.3.1\build\net46\KeraLua.targets" Condition="Exists('..\packages\KeraLua.1.3.1\build\net46\KeraLua.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\KeraLua.1.3.1\build\net46\KeraLua.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\KeraLua.1.3.1\build\net46\KeraLua.targets'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
-    <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
-  </Target>
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
-  <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+
 </Project>

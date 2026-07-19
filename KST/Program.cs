@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using KST.Config;
@@ -16,6 +17,7 @@ using KST.Misc;
 using KST.Settings;
 using KST.UI;
 using log4net;
+using log4net.Config;
 
 namespace KST {
     internal class Program {
@@ -27,6 +29,10 @@ namespace KST {
 
         [STAThread]
         static void Main(string[] args) {
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("Log4net.config"));
+            SQLitePCL.Batteries.Init();
+
             Guid guid = new Guid("{6E86E5D8-A735-4486-822B-2AAC10557CEB}");
             using (SingleInstance singleInstance = new SingleInstance(guid)) {
                 if (singleInstance.IsFirstInstance) {
@@ -132,8 +138,7 @@ namespace KST {
 
 
 
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
+                ApplicationConfiguration.Initialize();
                 Application.Run(new MainContainer());
 
                 _isRunning = false;

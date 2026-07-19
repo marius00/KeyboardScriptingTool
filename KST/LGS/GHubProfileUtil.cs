@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -61,9 +60,9 @@ namespace KST.LGS {
         }
 
         private static string GetGHubJson() {
-            using (var con = new SQLiteConnection($"Data Source={LogitechPaths.GHubConfig}")) {
+            using (var con = new SqliteConnection($"Data Source={LogitechPaths.GHubConfig}")) {
                 con.Open();
-                using (var cmd = new SQLiteCommand("SELECT file FROM data", con)) {
+                using (var cmd = new SqliteCommand("SELECT file FROM data", con)) {
                     using (var reader = cmd.ExecuteReader()) {
                         if (reader.Read()) {
                             return reader.GetString(0);
@@ -76,9 +75,9 @@ namespace KST.LGS {
         }
 
         private static bool SetGHubJson(string json) {
-            using (var con = new SQLiteConnection($"Data Source={LogitechPaths.GHubConfig}")) {
+            using (var con = new SqliteConnection($"Data Source={LogitechPaths.GHubConfig}")) {
                 con.Open();
-                using (var cmd = new SQLiteCommand("UPDATE data SET file = @json", con)) {
+                using (var cmd = new SqliteCommand("UPDATE data SET file = @json", con)) {
                     cmd.Parameters.AddWithValue("@json", json);
                     return cmd.ExecuteNonQuery() != 0;
                 }
