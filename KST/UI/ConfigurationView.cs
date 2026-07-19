@@ -92,7 +92,7 @@ namespace KST.UI {
                     var tag = lvi.Tag.ToString();
 
                     var entries = settings.Entries.Where(m => m.Id != tag).ToList();
-                    if (settings.Entries.Any(m => m.Process == dialog.Process)) {
+                    if (entries.Any(m => m.Process == dialog.Process)) {
                         MessageBox.Show("A script already exists for this process", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
@@ -131,11 +131,11 @@ namespace KST.UI {
         }
 
         private void btnViewFolder_Click(object sender, EventArgs e) {
-            Process.Start(AppPaths.SettingsFolder);
+            Process.Start(new ProcessStartInfo { FileName = "file://" + AppPaths.SettingsFolder, UseShellExecute = true });
         }
 
         private void linkViewLog_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            Process.Start(Path.Combine(AppPaths.CoreFolder, "log.txt"));
+            Process.Start(new ProcessStartInfo { FileName = "file://" + Path.Combine(AppPaths.CoreFolder, "log.txt"), UseShellExecute = true });
         }
 
         private void modifyToolStripMenuItem_Click(object sender, EventArgs e) {

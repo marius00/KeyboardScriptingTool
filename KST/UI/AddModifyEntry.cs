@@ -114,7 +114,7 @@ namespace KST.UI {
         }
 
         private void linkOpenFolder_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            System.Diagnostics.Process.Start(AppPaths.SettingsFolder);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = "file://" + AppPaths.SettingsFolder, UseShellExecute = true });
         }
 
         private void groupBox1_Enter(object sender, EventArgs e) {

@@ -18,9 +18,9 @@ namespace KST.Settings {
         private readonly SettingsFileMonitor _fileMonitor = new SettingsFileMonitor();
         private readonly Dictionary<string, LuaEngine> _luaScriptFromFilename = new Dictionary<string, LuaEngine>();
         private readonly Dictionary<string, LuaEngine> _luaScriptFromProcess = new Dictionary<string, LuaEngine>();
-        private readonly LogitechLedProvider _ledProvider;
+        private readonly ILedProvider _ledProvider;
 
-        public SettingsService(LogitechLedProvider ledProvider) {
+        public SettingsService(ILedProvider ledProvider) {
             this._ledProvider = ledProvider;
             _fileMonitor.Start();
             _fileMonitor.OnModified += _fileMonitor_OnModified;

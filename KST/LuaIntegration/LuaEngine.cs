@@ -19,7 +19,7 @@ namespace KST.LuaIntegration {
         private readonly LuaIntegration _integration;
         private readonly string _filename;
 
-        public LuaEngine(LogitechLedProvider ledProvider, string script, string filename) {
+        public LuaEngine(ILedProvider ledProvider, string script, string filename) {
             _integration = new LuaIntegration(ledProvider);
 
             _lua = new Lua();

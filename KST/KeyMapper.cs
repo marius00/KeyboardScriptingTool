@@ -514,6 +514,12 @@ namespace KST {
             "ALT",
         };
 
+        /// <summary>
+        /// All KST key identifiers that have a Logitech mapping. Used by alternative LED backends
+        /// (e.g. OpenRGB) to resolve the same set of keys against their own addressing scheme.
+        /// </summary>
+        public static IEnumerable<string> LogitechMappingKeys => _keyMapping.Keys;
+
         public static VirtualKeyCode TranslateToKeyCode(string character) {
             if (_virtualKeyCodes.ContainsKey(character.ToUpper())) {
                 return _virtualKeyCodes[character.ToUpper()];

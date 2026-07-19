@@ -53,6 +53,7 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="NLua" Version="1.7.9" />
+    <PackageReference Include="OpenRGB.NET" Version="3.1.1" />
   </ItemGroup>
 
   <!-- Native DLLs and content that must land next to the executable -->

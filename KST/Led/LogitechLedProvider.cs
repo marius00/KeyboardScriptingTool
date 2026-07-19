@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using log4net;
 
@@ -6,14 +6,15 @@ namespace KST.Led {
     /// <summary>
     /// Color integration for Logitech keyboards.
     /// Allows setting colors per-key on keyboards with support for this.
+    /// Requires Logitech Gaming Software or G-Hub to be installed and running.
     /// </summary>
-    internal class LogitechLedProvider : IDisposable {
+    internal class LogitechLedProvider : ILedProvider {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(LogitechLedProvider));
 
         private bool _isInitialized;
 
 
-        public void Start() {
+        public bool Start() {
             _isInitialized = LogitechGSDK.LogiLedInitWithName("LogitechLua");
             if (_isInitialized) {
                 LogitechGSDK.LogiLedSetTargetDevice(LogitechGSDK.LOGI_DEVICETYPE_ALL);
@@ -22,6 +23,8 @@ namespace KST.Led {
             else {
                 Logger.Warn("Error initializing logitech LED driver");
             }
+
+            return _isInitialized;
         }
 
         public void SetColor(string key, int r, int g, int b) {
@@ -44,8 +47,24 @@ namespace KST.Led {
             else {
                 Logger.Debug($"Setting color for {key} to ({r}, {g}, {b})");
                 LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(KeyMapper.TranslateToLogitechMapping(key), r, g, b);
-                
+
             }
+        }
+
+        public void SaveState() {
+            if (_isInitialized) {
+                LogitechGSDK.LogiLedSaveCurrentLighting();
+            }
+        }
+
+        public void RestoreState() {
+            if (_isInitialized) {
+                LogitechGSDK.LogiLedRestoreLighting();
+            }
+        }
+
+        public void Flush() {
+            // Logitech SDK writes immediately, nothing to batch.
         }
 
         public void Dispose() {

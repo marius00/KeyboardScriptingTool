@@ -8,11 +8,11 @@ using log4net;
 namespace KST.LuaIntegration {
     internal class LuaIntegration {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(LuaIntegration));
-        private readonly LogitechLedProvider _ledProvider;
+        private readonly ILedProvider _ledProvider;
         private readonly InputSimulator _simulator = new InputSimulator();
         private string _outputPrefix = string.Empty;
 
-        public LuaIntegration(LogitechLedProvider ledProvider) {
+        public LuaIntegration(ILedProvider ledProvider) {
             _ledProvider = ledProvider;
         }
         

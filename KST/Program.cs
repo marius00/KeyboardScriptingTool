@@ -57,7 +57,7 @@ namespace KST {
             InterceptKeys nativeKeyboardHook = new InterceptKeys();
             disposables.Add(nativeKeyboardHook);
 
-            LogitechLedProvider ledProvider = new LogitechLedProvider();
+            ILedProvider ledProvider = LedProviderFactory.Create(SettingsReader.Load(AppPaths.SettingsFile).LedBackend);
             disposables.Add(ledProvider);
 
             SettingsService settingsService = new SettingsService(ledProvider);
@@ -118,13 +118,14 @@ namespace KST {
                             }
 
                             settingsService.OnEvent(processName, LuaEventType.Tick, null, 0);
+                            ledProvider.Flush();
                             lastProcessRelevant = true;
                         }
                         else {
                             if (lastProcessRelevant) {
                                 // Notify the last relevant process that it lost focus
                                 settingsService.OnEvent(lastProcess, LuaEventType.Focus, "false", 0);
-                                LogitechGSDK.LogiLedRestoreLighting();
+                                ledProvider.RestoreState();
                             }
                             lastProcessRelevant = false;
                         }
