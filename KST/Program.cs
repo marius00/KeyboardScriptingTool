@@ -63,7 +63,18 @@ namespace KST {
             SettingsService settingsService = new SettingsService(ledProvider);
             disposables.Add(settingsService);
 
-            LogitechInputProvider logitechInputProvider = new LogitechInputProvider();
+            // Prefer the native-HID provider when a supported keyboard (G910) is
+            // present: it needs neither G-Hub/LGS nor the Logitech SDK DLL, and it
+            // reports real key-up events. Otherwise fall back to the SDK provider.
+            IGKeyInputProvider logitechInputProvider;
+            if (LogitechHidInputProvider.IsSupportedDevicePresent()) {
+                Logger.Info("Using native HID G-key provider (no G-Hub/LGS required)");
+                logitechInputProvider = new LogitechHidInputProvider();
+            }
+            else {
+                Logger.Info("No native-HID G-key device detected; using Logitech SDK provider");
+                logitechInputProvider = new LogitechInputProvider();
+            }
             disposables.Add(logitechInputProvider);
 
             MouseInputProvider mouseInputProvider = new MouseInputProvider();

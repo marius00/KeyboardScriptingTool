@@ -12,6 +12,11 @@ namespace KST.Led {
     /// provider resolves KST key names to LED indices on the connected keyboard and scales the
     /// percentage-based colors used elsewhere in KST. Writes are batched into a local buffer and
     /// pushed to the device on <see cref="Flush"/> to avoid a network round-trip per key.
+    ///
+    /// Setting individual keys requires the device to be in "Direct" mode, which makes KST own every
+    /// LED (unscripted keys go black). To avoid clobbering the user's normal lighting, Direct mode is
+    /// entered lazily on the first <see cref="SetColor"/> and handed back to the device's original
+    /// mode (e.g. a Spectrum effect) on <see cref="RestoreState"/> (alt-tab) and <see cref="Dispose"/>.
     /// </summary>
     internal class OpenRgbLedProvider : ILedProvider {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(OpenRgbLedProvider));
@@ -22,10 +27,11 @@ namespace KST.Led {
 
         private OpenRgbClient _client;
         private int _deviceId = -1;
+        private int _originalModeIndex = -1;
         private Color[] _buffer;
-        private Color[] _savedColors;
         private readonly Dictionary<string, int> _keyToLedIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private bool _isInitialized;
+        private bool _directModeActive;
         private bool _dirty;
 
         public OpenRgbLedProvider(string ip = "127.0.0.1", int port = 6742) {
@@ -55,18 +61,17 @@ namespace KST.Led {
                 }
 
                 _deviceId = keyboard.Index;
-
-                // Put the device into direct/custom control so our per-key writes take effect.
-                _client.SetCustomMode(_deviceId);
+                // Remember the mode the keyboard was in (e.g. a Spectrum effect) so we can hand it
+                // back when KST is not actively painting keys. We do NOT enter Direct mode here.
+                _originalModeIndex = keyboard.ActiveModeIndex;
 
                 ResolveKeyIndices(keyboard);
 
-                // Snapshot the current lighting so it can be restored later (mirrors the Logitech Save/Restore).
-                _savedColors = CloneOrBlack(keyboard.Colors, keyboard.Leds.Length);
-                _buffer = (Color[])_savedColors.Clone();
+                _buffer = new Color[keyboard.Leds.Length];
 
                 _isInitialized = true;
-                Logger.Info($"OpenRGB initialized on \"{keyboard.Name}\", mapped {_keyToLedIndex.Count} keys.");
+                Logger.Info($"OpenRGB initialized on \"{keyboard.Name}\", mapped {_keyToLedIndex.Count} keys. " +
+                            $"Original mode index {_originalModeIndex}.");
                 return true;
             }
             catch (Exception ex) {
@@ -100,14 +105,6 @@ namespace KST.Led {
             }
         }
 
-        private static Color[] CloneOrBlack(Color[] source, int length) {
-            var result = new Color[length];
-            if (source != null && source.Length == length) {
-                Array.Copy(source, result, length);
-            }
-            return result;
-        }
-
         public void SetColor(string key, int r, int g, int b) {
             if (r < 0 || r > 100) {
                 Logger.Warn($"Argument red \"{r}\" is outside range [0, 100]");
@@ -122,11 +119,33 @@ namespace KST.Led {
             } else if (!_keyToLedIndex.TryGetValue(key, out var ledIndex)) {
                 Logger.Warn($"Key \"{key}\" is not available on this OpenRGB keyboard");
             } else {
-                Logger.Debug($"Setting color for {key} to ({r}, {g}, {b})");
+                Logger.Info($"SetColor {key} -> LED {ledIndex} = ({r}, {g}, {b})");
                 lock (_lock) {
+                    EnsureDirectMode();
                     _buffer[ledIndex] = new Color(ToByte(r), ToByte(g), ToByte(b));
                     _dirty = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Switches the keyboard into Direct mode so per-key writes take effect. Called lazily so the
+        /// user's normal lighting keeps running until a script actually paints a key. Must hold _lock.
+        /// </summary>
+        private void EnsureDirectMode() {
+            if (_directModeActive) {
+                return;
+            }
+
+            try {
+                _client.SetCustomMode(_deviceId);
+                Array.Clear(_buffer, 0, _buffer.Length); // start from a clean (black) canvas
+                _directModeActive = true;
+                _dirty = true;
+                Logger.Info("Entered OpenRGB Direct mode");
+            }
+            catch (Exception ex) {
+                Logger.Warn("Error switching OpenRGB device to Direct mode", ex);
             }
         }
 
@@ -136,13 +155,14 @@ namespace KST.Led {
             }
 
             lock (_lock) {
-                if (!_dirty) {
+                if (!_directModeActive || !_dirty) {
                     return;
                 }
 
                 try {
                     _client.UpdateLeds(_deviceId, _buffer);
                     _dirty = false;
+                    Logger.Info($"Pushed {_buffer.Length} LEDs to OpenRGB device {_deviceId}");
                 }
                 catch (Exception ex) {
                     Logger.Warn("Error pushing colors to OpenRGB", ex);
@@ -151,34 +171,32 @@ namespace KST.Led {
         }
 
         public void SaveState() {
-            if (!_isInitialized) {
-                return;
-            }
-
-            lock (_lock) {
-                try {
-                    var current = _client.GetControllerData(_deviceId);
-                    _savedColors = CloneOrBlack(current.Colors, _buffer.Length);
-                }
-                catch (Exception ex) {
-                    Logger.Warn("Error saving OpenRGB lighting state", ex);
-                }
-            }
+            // The state we restore to is the device's original mode, captured in Start(). Nothing to do here.
         }
 
+        /// <summary>
+        /// Hands the keyboard back to the mode it was in when KST started (e.g. a Spectrum effect).
+        /// Direct mode is re-entered automatically on the next <see cref="SetColor"/>.
+        /// </summary>
         public void RestoreState() {
             if (!_isInitialized) {
                 return;
             }
 
             lock (_lock) {
+                if (!_directModeActive) {
+                    return;
+                }
+
                 try {
-                    _client.UpdateLeds(_deviceId, _savedColors);
-                    Array.Copy(_savedColors, _buffer, _buffer.Length);
+                    if (_originalModeIndex >= 0) {
+                        _client.UpdateMode(_deviceId, _originalModeIndex);
+                    }
+                    _directModeActive = false;
                     _dirty = false;
                 }
                 catch (Exception ex) {
-                    Logger.Warn("Error restoring OpenRGB lighting state", ex);
+                    Logger.Warn("Error restoring OpenRGB device to its original mode", ex);
                 }
             }
         }

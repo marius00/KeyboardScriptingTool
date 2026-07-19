@@ -4,3 +4,5 @@
 /packages
 /*.user
 /installer/*.exe
+/Tools/KstHidProbe/obj
+/Tools/KstHidProbe/bin

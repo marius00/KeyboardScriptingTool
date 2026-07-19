@@ -10,7 +10,7 @@ namespace KST.InputProviders {
     /// <summary>
     /// Input provider for G-keys
     /// </summary>
-    internal class LogitechInputProvider : IDisposable {
+    internal class LogitechInputProvider : IGKeyInputProvider {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(LogitechInputProvider));
         private const int MaxGKeys = 29; // G1 G2 G...
         private const int MaxGStates = 3; // M1 M2 M3
