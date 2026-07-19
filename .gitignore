@@ -3,3 +3,4 @@
 /.vs
 /packages
 /*.user
+/installer/*.exe

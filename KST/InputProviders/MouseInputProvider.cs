@@ -12,6 +12,10 @@ namespace KST.InputProviders {
         public event InputEventHandler OnInput;
         private volatile int _threadId;
 
+        // MSLLHOOKSTRUCT.flags bit set by the OS for injected input (SendInput).
+        // https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-msllhookstruct
+        private const int LLMHF_INJECTED = 0x00000001;
+
  
 
         public void Start() {
@@ -81,6 +85,13 @@ namespace KST.InputProviders {
             if (code < 0) {
                 //you need to call CallNextHookEx without further processing
                 //and return the value returned by CallNextHookEx
+                return CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+            }
+
+            // Ignore input we injected ourselves (MouseDown/MouseClick from a script). Otherwise a script
+            // that holds LMB would immediately see its own click echoed back and cancel itself. We still pass
+            // the event along the hook chain so the game receives it, we just don't forward it to the scripts.
+            if ((lParam.flags & LLMHF_INJECTED) != 0) {
                 return CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
             }
 

@@ -78,14 +78,32 @@ function hb_release(trigger)
 	SetBacklightColor(cfg.color, 100, 0, 0)
 end
 
+-- Called when a mouse button we're holding is pressed manually.
+-- The game will have seen the button go up (a physical click is down+up), so it has already
+-- cancelled the hold. We clear our own state to match, without sending another MouseUp,
+-- so that a single trigger press re-enables the hold instead of needing two.
+function hb_cancelHeldButton(button)
+	for trigger, cfg in pairs(hb_setup) do
+		if cfg.isMouse and cfg.button == button and hb_activeTriggers[trigger] ~= nil then
+			hb_activeTriggers[trigger] = nil
+			OutputLogMessage('{0} was clicked manually, cancelling the hold', button)
+			SetBacklightColor(cfg.color, 100, 0, 0)
+		end
+	end
+end
+
 function hb_OnEvent(event, arg, modifiers)
 	if event == KeyDownEvent then
 		if hb_setup[arg] ~= nil then
+			-- A trigger key was pressed, toggle the hold.
 			if hb_activeTriggers[arg] == nil then
 				hb_press(arg)
 			else
 				hb_release(arg)
 			end
+		else
+			-- Might be a manual click of a button we are currently holding.
+			hb_cancelHeldButton(arg)
 		end
 	end
 end
