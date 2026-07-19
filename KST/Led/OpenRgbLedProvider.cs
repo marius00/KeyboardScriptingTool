@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using log4net;
 using OpenRGB.NET;
 
@@ -41,6 +44,14 @@ namespace KST.Led {
 
         public bool Start() {
             try {
+                // Some Logitech keyboards (e.g. G910) occasionally end up in a state where OpenRGB has
+                // them detected but won't render until a device rescan. OpenRGB.NET doesn't expose the
+                // rescan command (packet id 140), so we send it over a throwaway raw socket first, then
+                // give the server a moment to re-detect before connecting for real.
+                if (RescanDevices()) {
+                    Thread.Sleep(RescanSettleMs);
+                }
+
                 _client = new OpenRgbClient(_ip, _port, "KST", autoConnect: false, timeoutMs: 1000);
                 _client.Connect();
 
@@ -79,6 +90,63 @@ namespace KST.Led {
                 Logger.Warn(ex.Message, ex);
                 _isInitialized = false;
                 return false;
+            }
+        }
+
+        // OpenRGB SDK network protocol constants (see OpenRGB NetworkProtocol.h).
+        private const uint CmdSetClientName = 50;
+        private const uint CmdRequestRescanDevices = 140;
+        private const int RescanSettleMs = 1500;
+
+        /// <summary>
+        /// Asks the OpenRGB server to re-detect devices (equivalent to the GUI's "Rescan Devices").
+        /// Sent as a raw header-only packet because OpenRGB.NET does not wrap this command.
+        /// Returns true if the request was delivered (i.e. the server is reachable).
+        /// </summary>
+        private bool RescanDevices() {
+            try {
+                using (var tcp = new TcpClient()) {
+                    var connect = tcp.BeginConnect(_ip, _port, null, null);
+                    if (!connect.AsyncWaitHandle.WaitOne(1000)) {
+                        // OpenRGB not running / not reachable; the normal connect below will report it.
+                        return false;
+                    }
+                    tcp.EndConnect(connect);
+
+                    using (var stream = tcp.GetStream()) {
+                        // Register a client name first so the server logs a sensible source, then rescan.
+                        SendPacket(stream, 0, CmdSetClientName, Encoding.ASCII.GetBytes("KST\0"));
+                        SendPacket(stream, 0, CmdRequestRescanDevices, Array.Empty<byte>());
+                        stream.Flush();
+                    }
+                }
+
+                Logger.Info("Requested OpenRGB device rescan");
+                return true;
+            }
+            catch (Exception ex) {
+                Logger.Warn("Error requesting OpenRGB device rescan (continuing without it)", ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Writes a single OpenRGB SDK packet: the 16-byte "ORGB" header followed by the payload.
+        /// All multi-byte fields are little-endian, matching the protocol and x64 host order.
+        /// </summary>
+        private static void SendPacket(NetworkStream stream, uint deviceIndex, uint commandId, byte[] data) {
+            var header = new byte[16];
+            header[0] = (byte)'O';
+            header[1] = (byte)'R';
+            header[2] = (byte)'G';
+            header[3] = (byte)'B';
+            BitConverter.GetBytes(deviceIndex).CopyTo(header, 4);
+            BitConverter.GetBytes(commandId).CopyTo(header, 8);
+            BitConverter.GetBytes((uint)data.Length).CopyTo(header, 12);
+
+            stream.Write(header, 0, header.Length);
+            if (data.Length > 0) {
+                stream.Write(data, 0, data.Length);
             }
         }
 
